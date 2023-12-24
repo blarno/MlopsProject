@@ -30,7 +30,7 @@ class SetUpData(utils.data.Dataset):
         return self.data[index], self.target[index]
 
 
-@main(version_base=None, config_path="../conf", config_name="config")
+@main(version_base=None, config_path="conf", config_name="config")
 def train_model(cfg: DictConfig):
     config_path = "mlflow_config.toml"
     config = load(config_path)
