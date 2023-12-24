@@ -6,7 +6,7 @@ from joblib import dump
 from mlflow import log_metric, log_param, set_tracking_uri, start_run
 from numpy import mean
 from omegaconf import DictConfig
-from pandas import read_csv
+from pandas import concat, get_dummies, read_csv
 from sklearn.metrics import mean_absolute_percentage_error
 from toml import load
 from torch import from_numpy, nn, optim, utils
@@ -15,19 +15,41 @@ from torcheval.metrics import R2Score
 
 class SetUpData(utils.data.Dataset):
     def __init__(self, path_file):
-        data_matrix = self.df = read_csv(path_file, index_col=0)
-        data_matrix = from_numpy(data_matrix)
-        self.X = data_matrix[:, 1:13]
-        self.X = self.data.float()
-        self.y = data_matrix[:, 0]
+        self.df = read_csv(path_file, index_col=None)
 
-        self.n_samples = self.data.shape[0]
+        dummy_fields = ["Pclass", "Sex", "Embarked"]
+        for field in dummy_fields:
+            dummies = get_dummies(self.df[field], prefix=field, drop_first=False)
+            self.df = concat([self.df, dummies], axis=1)
+
+        fields_to_drop = [
+            "PassengerId",
+            "Cabin",
+            "Pclass",
+            "Name",
+            "Sex",
+            "Ticket",
+            "Embarked",
+        ]
+        self.df = self.df.drop(fields_to_drop, axis=1)
+
+        self.df["Age"] = self.df["Age"].fillna(self.df["Age"].mean())
+
+        to_normalize = ["Age", "Fare"]
+        for field in to_normalize:
+            mean_value, std = self.df[field].mean(), self.df[field].std()
+            self.df.loc[:, field] = (self.df[field] - mean_value) / std
+
+        self.X = from_numpy(self.df.values[:, 1:13]).float()
+        self.y = from_numpy(self.df.values[:, 0]).float()
+
+        self.n_samples = self.df.shape[0]
 
     def __len__(self):  # Length of the dataset.
         return self.X.size()[0]
 
     def __getitem__(self, index):
-        return self.data[index], self.target[index]
+        return self.X[index], self.y[index]
 
 
 @main(version_base=None, config_path="conf", config_name="config")
