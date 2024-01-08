@@ -65,9 +65,9 @@ def train_model(cfg: DictConfig):
         log_param("batch_size", cfg["params"].batch_size)
         log_param("learning_rate", cfg["params"].learning_rate)
         log_param("epochs", cfg["params"].epochs)
-        fs = DVCFileSystem("https://github.com/blarno/mlops_project1/")
-        with fs.open("data/titanic.csv") as f:
-            data = SetUpData(f)
+        fs = DVCFileSystem("https://github.com/blarno/MlopsProject")
+        with fs.open("data/titanic.csv") as file:
+            data = SetUpData(file)
         train_size = int(0.8 * len(data))
         test_size = len(data) - train_size
 

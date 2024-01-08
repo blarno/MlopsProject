@@ -1,5 +1,0 @@
-model: model
-params:
-  batch_size: 256
-  learning_rate: 0.01
-  epochs: 10

@@ -5,11 +5,11 @@ from pandas import DataFrame
 
 
 def predict():
-    fs = DVCFileSystem("https://github.com/blarno/mlops_project1/")
-    with fs.open("data/X_test.h5") as f:
-        x_test = load(f)
-    with fs.open("models/model.h5") as f:
-        model = load(f)
+    fs = DVCFileSystem("https://github.com/blarno/MlopsProject")
+    with fs.open("data/X_test.h5") as file:
+        x_test = load(file)
+    with fs.open("models/model.h5") as file:
+        model = load(file)
 
     preds = DataFrame(
         model.forward(x_test).view(-1).detach().numpy(), columns=["preds"]
